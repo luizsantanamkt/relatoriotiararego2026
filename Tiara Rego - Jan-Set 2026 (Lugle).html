@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiara Rêgo — Relatório de Evolução | Lugle</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root{
+  --primary:#FF0054;
+  --primary-glow: rgba(255,0,84,0.18);
+  --primary-dim: rgba(255,0,84,0.08);
+  --bg:#0D0D0D;
+  --surface:#161616;
+  --surface2:#1E1E1E;
+  --surface3:#282828;
+  --border:#2A2A2A;
+  --text:#F5F5F5;
+  --text2:#A3A3A3;
+  --text3:#6E6E6E;
+  --green:#22C55E;
+  --green-bg:rgba(34,197,94,0.12);
+  --red:#EF4444;
+  --red-bg:rgba(239,68,68,0.12);
+  --blue:#3B82F6;
+  --purple:#8B5CF6;
+  --cyan:#06B6D4;
+  --yellow:#EAB308;
+  --yellow-bg:rgba(234,179,8,0.12);
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+h1,h2,h3,h4,.display{font-family:'Space Grotesk',sans-serif;}
+::selection{background:var(--primary); color:#fff;}
+
+a{color:inherit;}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:200;
+  background:rgba(13,13,13,0.85);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:12px 32px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.topbar-left{display:flex; align-items:center; gap:12px;}
+.topbar-left img{height:26px; display:block;}
+.topbar-left span{font-size:0.78em; color:var(--text2); letter-spacing:0.02em; border-left:1px solid var(--border); padding-left:12px;}
+.topbar-right{font-size:0.75em; color:var(--text3); letter-spacing:0.02em;}
+.topbar-right b{color:var(--text2); font-weight:600;}
+
+/* ---------- Layout ---------- */
+.container{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative; overflow:hidden;
+  padding:88px 24px 56px;
+  text-align:center;
+}
+.hero::before, .hero::after{
+  content:''; position:absolute; border-radius:50%;
+  filter:blur(90px); z-index:0; opacity:0.55;
+  animation:drift 14s ease-in-out infinite alternate;
+}
+.hero::before{
+  width:480px; height:480px; background:var(--primary-glow);
+  top:-180px; left:8%;
+}
+.hero::after{
+  width:380px; height:380px; background:rgba(139,92,246,0.14);
+  bottom:-160px; right:10%;
+  animation-delay:3s;
+}
+@keyframes drift{
+  from{transform:translate(0,0) scale(1);}
+  to{transform:translate(30px,-20px) scale(1.08);}
+}
+.hero-content{position:relative; z-index:1;}
+.hero-eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:0.72em; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--text2); background:var(--surface);
+  border:1px solid var(--border); padding:6px 14px; border-radius:100px;
+  margin-bottom:24px;
+}
+.hero-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--primary); box-shadow:0 0 10px var(--primary);}
+.hero h1{
+  font-size:clamp(2.1em, 5vw, 3.6em); font-weight:700; line-height:1.08;
+  letter-spacing:-0.01em;
+}
+.hero h1 span{color:var(--primary);}
+.hero-period{
+  margin-top:16px; color:var(--text2); font-size:1.05em; font-weight:500;
+  letter-spacing:0.01em;
+}
+
+/* ---------- Sections ---------- */
+.section{
+  margin:64px 0;
+  opacity:0; transform:translateY(24px);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+.section.visible{opacity:1; transform:translateY(0);}
+.section-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:24px; flex-wrap:wrap;}
+.section-head .titles{display:flex; align-items:center; gap:12px;}
+.section-icon{
+  width:38px; height:38px; border-radius:10px; flex-shrink:0;
+  background:var(--primary-dim); border:1px solid var(--primary-glow);
+  display:flex; align-items:center; justify-content:center; color:var(--primary);
+}
+.section-head h2{font-size:1.5em; font-weight:600;}
+.section-head .section-sub{color:var(--text3); font-size:0.86em; margin-top:2px;}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:24px;
+}
+
+/* ---------- Macro split (KPIs + cumulative charts) ---------- */
+.macro-split{display:grid; grid-template-columns:1.1fr 0.9fr; gap:20px; align-items:stretch;}
+.macro-split .kpi-row{grid-template-columns:repeat(2,1fr);}
+.cumulative-stack{display:flex; flex-direction:column; gap:12px; height:100%;}
+.chart-card.small{padding:14px 18px 10px; display:flex; flex-direction:column; flex:1;}
+.chart-card.small .chart-title{flex-shrink:0;}
+.chart-card.small .chart-title h4{font-size:0.82em;}
+.chart-card.small .canvas-wrap{flex:1; position:relative; min-height:0;}
+.chart-card.small canvas{position:absolute; inset:0; width:100%!important; height:100%!important;}
+
+/* ---------- KPIs ---------- */
+.kpi-row{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+.kpi{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:20px 22px; position:relative; overflow:hidden;
+  transition:border-color 0.25s, transform 0.25s;
+}
+.kpi:hover{border-color:rgba(255,0,84,0.35); transform:translateY(-2px);}
+.kpi-icon{
+  width:32px; height:32px; border-radius:9px; margin-bottom:14px;
+  background:var(--primary-dim); color:var(--primary);
+  display:flex; align-items:center; justify-content:center;
+}
+.kpi-label{font-size:0.72em; letter-spacing:0.06em; text-transform:uppercase; color:var(--text3); font-weight:600;}
+.kpi-value{font-size:1.8em; font-weight:700; margin-top:8px; font-family:'Space Grotesk',sans-serif;}
+.kpi-change{
+  display:inline-flex; align-items:center; gap:4px; font-size:0.76em; font-weight:700;
+  padding:2px 8px; border-radius:6px; margin-top:10px;
+}
+.kpi-change.up{color:var(--green); background:var(--green-bg);}
+.kpi-change.down{color:var(--red); background:var(--red-bg);}
+.kpi-sub{font-size:0.76em; color:var(--text3); margin-top:8px;}
+
+/* ---------- Evolução layout (charts + timeline sidebar) ---------- */
+.evolucao-layout{display:grid; grid-template-columns:2.6fr 1fr; gap:20px; align-items:start;}
+#evolucao-grid{grid-template-columns:1fr;}
+.timeline-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:22px 22px 20px; position:sticky; top:84px;
+}
+.timeline-card h4{font-size:0.88em; font-weight:700; margin-bottom:20px; letter-spacing:0.01em;}
+.timeline-list{position:relative; padding-left:16px;}
+.timeline-list::before{content:''; position:absolute; left:4px; top:4px; bottom:4px; width:1px; background:var(--border);}
+.timeline-item{position:relative; padding-bottom:18px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{
+  content:''; position:absolute; left:-16px; top:3px; width:8px; height:8px; border-radius:50%;
+  background:var(--primary); box-shadow:0 0 0 3px var(--primary-dim);
+}
+.tl-month{font-size:0.66em; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary);}
+.tl-event{font-size:0.84em; color:var(--text2); margin-top:3px; line-height:1.4;}
+
+/* ---------- Charts grid ---------- */
+.charts-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+.chart-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px 12px;}
+.chart-card .chart-title{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+.chart-card .chart-title h4{font-size:0.95em; font-weight:600;}
+.chart-card .chart-title .chart-total{font-size:0.85em; color:var(--text2); font-weight:600;}
+.chart-card canvas{max-height:220px;}
+.chart-note{font-size:0.72em; color:var(--text3); margin-top:8px; display:flex; align-items:center; gap:6px;}
+.chart-note .dash{display:inline-block; width:14px; border-top:2px dashed var(--text3);}
+
+/* ---------- Tabs ---------- */
+.tabs{display:inline-flex; gap:4px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:3px;}
+.tab{padding:7px 16px; border-radius:6px; font-size:0.8em; font-weight:600; color:var(--text3); cursor:pointer; border:none; background:none; font-family:'Inter',sans-serif;}
+.tab.active{background:var(--primary); color:#fff;}
+
+/* ---------- Follower hero ---------- */
+.followers-hero{
+  display:grid; grid-template-columns:0.9fr 1.4fr; gap:20px; align-items:stretch;
+}
+.followers-big{
+  background:linear-gradient(160deg, var(--surface2), var(--surface));
+  border:1px solid var(--border); border-radius:16px; padding:28px;
+  display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden;
+}
+.followers-big::after{
+  content:''; position:absolute; width:220px; height:220px; border-radius:50%;
+  background:var(--primary-glow); filter:blur(60px); right:-60px; bottom:-80px;
+}
+.followers-big .label{font-size:0.78em; text-transform:uppercase; letter-spacing:0.06em; color:var(--text3); font-weight:600;}
+.followers-big .value{font-size:3em; font-weight:700; font-family:'Space Grotesk',sans-serif; margin:10px 0 6px;}
+.followers-big .growth{display:inline-flex; gap:8px; align-items:center; font-size:0.95em; color:var(--green); font-weight:700;}
+.followers-big .note{margin-top:16px; font-size:0.78em; color:var(--text3); line-height:1.6;}
+
+/* ---------- Format stats ---------- */
+.format-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+.format-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px;}
+.format-card .fmt-head{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+.format-badge{width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:1.1em;}
+.format-badge.reel{background:rgba(255,0,84,0.14); color:var(--primary);}
+.format-badge.carrossel{background:rgba(139,92,246,0.14); color:var(--purple);}
+.format-badge.imagem{background:rgba(6,182,212,0.14); color:var(--cyan);}
+.format-card h4{font-size:1em; font-weight:700;}
+.format-card .fmt-count{font-size:0.76em; color:var(--text3);}
+.fmt-metric{display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid var(--border); font-size:0.86em;}
+.fmt-metric span:first-child{color:var(--text3);}
+.fmt-metric b{color:var(--text);}
+.format-card.winner{border-color:rgba(255,0,84,0.4); box-shadow:0 0 0 1px rgba(255,0,84,0.12);}
+.winner-tag{font-size:0.65em; background:var(--primary); color:#fff; padding:2px 8px; border-radius:100px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; margin-left:8px;}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:14px;}
+table.data-table{width:100%; border-collapse:collapse; font-size:0.86em; min-width:640px;}
+table.data-table th{
+  text-align:left; padding:14px 16px; background:var(--surface2); color:var(--text3);
+  font-size:0.72em; text-transform:uppercase; letter-spacing:0.05em; font-weight:700;
+  border-bottom:1px solid var(--border); white-space:nowrap;
+}
+table.data-table td{padding:13px 16px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:middle;}
+table.data-table tbody tr{cursor:pointer; transition:background 0.15s;}
+table.data-table tbody tr:hover{background:var(--surface2);}
+table.data-table tbody tr:last-child td{border-bottom:none;}
+.post-title{color:var(--text); font-weight:500; max-width:320px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.rank-num{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:8px; font-weight:700; font-size:0.85em; color:#0d0d0d;}
+.rank-1{background:linear-gradient(135deg,#FFD86B,#E8A33D);}
+.rank-2{background:linear-gradient(135deg,#E7E7E7,#B7B7B7);}
+.rank-3{background:linear-gradient(135deg,#E3A374,#B5713F);}
+.rank-n{background:var(--surface3); color:var(--text2);}
+.rank-badge-bad{background:var(--red-bg); color:var(--red);}
+.post-format-badge{font-size:0.72em; font-weight:700; padding:3px 9px; border-radius:100px; text-transform:uppercase; letter-spacing:0.03em;}
+.format-reel{background:rgba(255,0,84,0.14); color:var(--primary);}
+.format-carrossel{background:rgba(139,92,246,0.14); color:var(--purple);}
+.format-imagem{background:rgba(6,182,212,0.14); color:var(--cyan);}
+.post-link{color:var(--primary); font-weight:600; text-decoration:none; opacity:0; transition:opacity 0.15s;}
+tr:hover .post-link{opacity:1;}
+.tema-tag{font-size:0.76em; color:var(--text3); display:block; margin-top:2px;}
+
+/* ---------- Competitors ---------- */
+.competitor-note{
+  margin-top:16px; padding:16px 18px; border-radius:12px;
+  background:var(--surface2); border:1px solid var(--border);
+  font-size:0.86em; color:var(--text2); display:flex; gap:12px; align-items:flex-start;
+}
+.competitor-note b{color:var(--text);}
+.row-highlight{background:rgba(255,0,84,0.06);}
+.row-highlight td:first-child{box-shadow:inset 3px 0 0 var(--primary);}
+.badge-ref{font-size:0.65em; background:var(--surface3); color:var(--text2); padding:2px 8px; border-radius:100px; margin-left:8px;}
+
+/* ---------- Collabs ---------- */
+.collab-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:16px;}
+.collab-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px;
+  transition:border-color 0.2s, transform 0.2s; cursor:pointer;
+}
+.collab-card:hover{border-color:rgba(255,0,84,0.35); transform:translateY(-3px);}
+.collab-handle{font-size:0.9em; font-weight:700; color:var(--primary);}
+.collab-date{font-size:0.72em; color:var(--text3); margin-top:2px;}
+.collab-desc{font-size:0.8em; color:var(--text2); margin:12px 0; line-height:1.5; min-height:60px;}
+.collab-stats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;}
+.collab-stat{font-size:0.76em;}
+.collab-stat b{display:block; font-size:1.1em; color:var(--text); font-family:'Space Grotesk',sans-serif;}
+.collab-stat span{color:var(--text3);}
+
+/* ---------- Footer ---------- */
+.footer{
+  margin-top:80px; padding:32px 24px 48px; text-align:center;
+  border-top:1px solid var(--border);
+}
+.footer img{height:20px; opacity:0.8; margin-bottom:10px;}
+.footer p{font-size:0.8em; color:var(--text3);}
+.footer .brand{color:var(--primary); font-weight:700;}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .macro-split{grid-template-columns:1fr;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .cumulative-stack{height:auto;}
+  .chart-card.small{flex:none;}
+  .chart-card.small .canvas-wrap{height:70px;}
+  .evolucao-layout{grid-template-columns:1fr;}
+  .timeline-card{position:static;}
+  .charts-grid{grid-template-columns:1fr;}
+  .followers-hero{grid-template-columns:1fr;}
+  .format-grid{grid-template-columns:1fr;}
+}
+@media (max-width:560px){
+  .kpi-row{grid-template-columns:1fr;}
+  .topbar-left span{display:none;}
+  .hero{padding:64px 16px 40px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="data:image/png;base64,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" alt="Lugle">
+    <span>instagram analytics — @tiararego.arquitetura</span>
+  </div>
+  <div class="topbar-right">relatório gerado por <b>Lugle</b></div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span class="dot"></span> relatório</div>
+      <h1>Tiara Rêgo</h1>
+      <div class="hero-period">Janeiro/2026 – Setembro/2026</div>
+    </div>
+  </div>
+
+  <!-- ================= BLOCO 1: VISÃO MACRO ================= -->
+  <section class="section" id="macro">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l4-4 4 4 4-8 6 6"/><path d="M3 20h18"/></svg>
+        </div>
+        <div>
+          <h2>Visão geral do período</h2>
+          <div class="section-sub">Totais acumulados de janeiro/2026 a setembro/2026 (9 meses)</div>
+        </div>
+      </div>
+    </div>
+    <div class="macro-split">
+      <div class="kpi-row" id="kpi-row"></div>
+      <div class="cumulative-stack" id="cumulative-stack">
+        <div class="chart-card small">
+          <div class="chart-title"><h4>Visualizações acumuladas</h4><span class="chart-total" id="cum-total-visualizacoes"></span></div>
+          <div class="canvas-wrap"><canvas id="chart-cum-visualizacoes"></canvas></div>
+        </div>
+        <div class="chart-card small">
+          <div class="chart-title"><h4>Interações acumuladas</h4><span class="chart-total" id="cum-total-interacoes"></span></div>
+          <div class="canvas-wrap"><canvas id="chart-cum-interacoes"></canvas></div>
+        </div>
+        <div class="chart-card small">
+          <div class="chart-title"><h4>Visitas acumuladas</h4><span class="chart-total" id="cum-total-visitas"></span></div>
+          <div class="canvas-wrap"><canvas id="chart-cum-visitas"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOCO 2: EVOLUÇÃO MENSAL ================= -->
+  <section class="section" id="evolucao">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        </div>
+        <div>
+          <h2>Evolução mês a mês</h2>
+          <div class="section-sub">O progresso acontecendo — cada métrica, mês a mês, desde o início</div>
+        </div>
+      </div>
+    </div>
+    <div class="evolucao-layout" style="grid-template-columns:1fr;">
+      <div class="charts-grid" id="evolucao-grid">
+        <div class="chart-card">
+          <div class="chart-title"><h4>Alcance <span style="font-weight:400;color:var(--text3);font-size:0.85em;">(contas únicas por mês)</span></h4><span class="chart-total" id="total-alcance"></span></div>
+          <canvas id="chart-alcance" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><h4>Visualizações</h4><span class="chart-total" id="total-visualizacoes"></span></div>
+          <canvas id="chart-visualizacoes" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><h4>Interações</h4><span class="chart-total" id="total-interacoes"></span></div>
+          <canvas id="chart-interacoes" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><h4>Visitas ao perfil</h4><span class="chart-total" id="total-visitas"></span></div>
+          <canvas id="chart-visitas" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><h4>Frequência <span style="font-weight:400;color:var(--text3);font-size:0.85em;">(visualizações ÷ alcance)</span></h4><span class="chart-total" id="total-frequencia"></span></div>
+          <canvas id="chart-frequencia" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOCO 2B: DIVISÃO TRIMESTRAL ================= -->
+  <section class="section" id="trimestral">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/></svg>
+        </div>
+        <div>
+          <h2>Divisão trimestral</h2>
+          <div class="section-sub">Os mesmos números, agrupados em blocos de 3 meses</div>
+        </div>
+      </div>
+    </div>
+    <div class="format-grid" id="quarter-grid"></div>
+    <div class="charts-grid" id="quarter-charts-grid" style="margin-top:16px;">
+      <div class="chart-card">
+        <div class="chart-title"><h4>Alcance <span style="font-weight:400;color:var(--text3);font-size:0.85em;">(contas únicas no trimestre)</span></h4></div>
+        <canvas id="chart-quarter-alcance" height="150"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><h4>Visualizações</h4></div>
+        <canvas id="chart-quarter-visualizacoes" height="150"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><h4>Interações</h4></div>
+        <canvas id="chart-quarter-interacoes" height="150"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><h4>Visitas ao perfil</h4></div>
+        <canvas id="chart-quarter-visitas" height="150"></canvas>
+      </div>
+      <div class="chart-card" style="grid-column:1/-1;">
+        <div class="chart-title"><h4>Frequência <span style="font-weight:400;color:var(--text3);font-size:0.85em;">(visualizações ÷ alcance)</span></h4></div>
+        <canvas id="chart-quarter-frequencia" height="90"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOCO 3: SEGUIDORES ================= -->
+  <section class="section" id="seguidores">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M17 4a3 3 0 010 6"/><path d="M22 20c0-3-2-5.2-5-5.8"/></svg>
+        </div>
+        <div>
+          <h2>Crescimento de seguidores</h2>
+          <div class="section-sub">A métrica mais visual de progresso: de onde saímos, onde chegamos</div>
+        </div>
+      </div>
+    </div>
+    <div class="followers-hero">
+      <div class="followers-big" id="followers-big"></div>
+      <div class="chart-card">
+        <div class="chart-title"><h4>Seguidores totais acumulados</h4><span class="chart-total" id="seguidores-abs-total"></span></div>
+        <canvas id="chart-seguidores-abs" height="90"></canvas>
+        <div class="chart-note">estimativa mensal com base no total informado pela ferramenta de analytics</div>
+      </div>
+    </div>
+    <div class="charts-grid" style="margin-top:16px;">
+      <div class="chart-card" style="grid-column:1/-1;">
+        <div class="chart-title"><h4>Novos seguidores por mês (bruto)</h4><span class="chart-total" id="seguidores-gross-total"></span></div>
+        <canvas id="chart-seguidores-gross" height="110"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOCO 4: MIX DE CONTEÚDO ================= -->
+  <section class="section" id="conteudo">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        </div>
+        <div>
+          <h2>Mix de conteúdo</h2>
+          <div class="section-sub">Reels, carrosséis e imagens: o que foi publicado e o que performou</div>
+        </div>
+      </div>
+    </div>
+    <div class="charts-grid" style="margin-bottom:16px;">
+      <div class="chart-card">
+        <div class="chart-title"><h4>Distribuição de posts por formato</h4></div>
+        <canvas id="chart-format-count" height="180"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><h4>Média de visualizações por formato</h4></div>
+        <canvas id="chart-format-views" height="180"></canvas>
+      </div>
+    </div>
+    <div class="format-grid" id="format-grid"></div>
+  </section>
+
+  <!-- ================= BLOCO 5: TOP CONTEÚDOS ================= -->
+  <section class="section" id="top-content">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.6 6.6L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.4-.4z"/></svg>
+        </div>
+        <div>
+          <h2>Conteúdos que mais performaram</h2>
+          <div class="section-sub">Ranking por alcance e por engajamento</div>
+        </div>
+      </div>
+      <div class="tabs" data-group="top-content">
+        <button class="tab active" data-tab="tab-alcance">Alcance</button>
+        <button class="tab" data-tab="tab-engajamento">Engajamento</button>
+      </div>
+    </div>
+    <div class="tab-content active" id="tab-alcance">
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>#</th><th>Conteúdo</th><th>Formato</th><th>Data</th><th>Alcance</th><th>Visualizações</th><th></th></tr></thead>
+        <tbody id="top-alcance-body"></tbody>
+      </table></div>
+    </div>
+    <div class="tab-content" id="tab-engajamento" style="display:none;">
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>#</th><th>Conteúdo</th><th>Formato</th><th>Data</th><th>Engajamento</th><th>Alcance</th><th></th></tr></thead>
+        <tbody id="top-engajamento-body"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ================= BLOCO 6: COLLABS ================= -->
+  <section class="section" id="collabs">
+    <div class="section-head">
+      <div class="titles">
+        <div class="section-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8a3 3 0 10-2.83-4M7 8a3 3 0 112.83-4"/><path d="M2 20c0-3 2.5-5 5-5M22 20c0-3-2.5-5-5-5"/><circle cx="12" cy="11" r="3"/><path d="M12 14c-3 0-5 2-5 5h10c0-3-2-5-5-5z"/></svg>
+        </div>
+        <div>
+          <h2>Análise de collabs</h2>
+          <div class="section-sub">Performance das parcerias feitas com outras contas</div>
+        </div>
+      </div>
+    </div>
+    <div class="collab-grid" id="collab-grid"></div>
+  </section>
+
+  <div class="footer">
+    <img src="data:image/png;base64,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" alt="Lugle">
+    <p>Relatório gerado por <span class="brand">Lugle</span> · @tiararego.arquitetura · Janeiro/2026 – Setembro/2026</p>
+  </div>
+
+</div>
+
+<script>const DATA = {"meta": {"cliente": "Tiara Rêgo", "periodo_label": "Janeiro/2026 – Setembro/2026", "agencia": "Lugle"}, "months": ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"], "months_labels": ["Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26"], "series": {"interacoes": [570, 1480, 1303, 2160, 1697, 2264, 1691, 1716, 2024], "seguidores": [73, 76, 78, 144, 93, 277, 116, 91, 111], "visitas": [519, 638, 596, 892, 649, 987, 803, 640, 735], "visualizacoes": [38899, 68145, 68492, 103600, 76509, 83316, 71065, 74951, 82760], "alcance": [8282, 11840, 11202, 17093, 10815, 17374, 12922, 8799, 17367]}, "cumulative": {"visualizacoes": [38899, 107044, 175536, 279136, 355645, 438961, 510026, 584977, 667737], "interacoes": [570, 2050, 3353, 5513, 7210, 9474, 11165, 12881, 14905], "visitas": [519, 1157, 1753, 2645, 3294, 4281, 5084, 5724, 6459]}, "totals": {"interacoes": 14905, "seguidores": 1059, "visitas": 6459, "visualizacoes": 667737}, "engagement_rate_overall": 2.23, "alcance_periodo": 72000, "alcance_trimestres": [24500, 36100, 31900], "seguidores_abs": {"months": ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"], "cum": [6782, 6815, 6849, 6911, 6951, 7070, 7120, 7159, 7206], "start": 6751}, "seguidores_gross_total": 1059, "format_stats": {"Reel do Instagram": {"count": 57, "views_total": 125751, "views_avg": 2206.2, "interacoes_total": 4855, "interacoes_avg": 85.2, "likes_total": 4018, "saves_total": 221, "shares_total": 278, "follows_total": 312, "follows_avg": 5.47, "save_like_ratio": 5.5, "engagement_rate": 3.86}, "Carrossel do Instagram": {"count": 25, "views_total": 35680, "views_avg": 1427.2, "interacoes_total": 1044, "interacoes_avg": 41.8, "likes_total": 919, "saves_total": 29, "shares_total": 24, "follows_total": 3, "follows_avg": 0.12, "save_like_ratio": 3.2, "engagement_rate": 2.93}}, "format_counts": {"Reel do Instagram": 57, "Carrossel do Instagram": 25}, "top_alcance": [{"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Esse é um projeto que vocês vão ver muito por aqui.   Vou compartilhar com vocês os bastidores, os desafios e as soluções: do projeto até a ", "data": "06/02/2026 05:32", "link": "https://www.instagram.com/reel/DZFWUhsDJPw/", "visualizacoes": 15522, "alcance": 9382, "curtidas": 723, "compartilhamentos": 49, "seguimentos": 186, "comentarios": 50, "salvamentos": 35, "engajamento": 857}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Fomos convidadas pela @morena.grupo para assinar o café da Casa Sertão 2026, uma mostra de arquitetura aqui em Petrolina, dentro da Casa Nav", "data": "04/19/2026 10:35", "link": "https://www.instagram.com/reel/DXUmFcUj3w7/", "visualizacoes": 8358, "alcance": 5392, "curtidas": 305, "compartilhamentos": 50, "seguimentos": 18, "comentarios": 48, "salvamentos": 13, "engajamento": 416}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Como fizemos a instalação da Cuba Farm Sink nesse projeto 🤍✨  Por isso reforçamos a importância de um bom projeto antes mesmo de qualquer in", "data": "09/08/2026 04:30", "link": "https://www.instagram.com/reel/DdBiTBBAgDc/", "visualizacoes": 7247, "alcance": 4795, "curtidas": 189, "compartilhamentos": 61, "seguimentos": 7, "comentarios": 21, "salvamentos": 91, "engajamento": 362}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Vem acompanhar comigo os detalhes de como está ficando a obra da @camaradesentose  ✨🏗️", "data": "09/30/2026 10:15", "link": "https://www.instagram.com/reel/Dd62I_IHT10/", "visualizacoes": 7204, "alcance": 3913, "curtidas": 219, "compartilhamentos": 10, "seguimentos": 28, "comentarios": 12, "salvamentos": 3, "engajamento": 244}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Diário de obra  I Casa de Campo - Episódio 01: Instalação do piso 💙✨", "data": "06/08/2026 06:40", "link": "https://www.instagram.com/reel/DZU67zbjuQ5/", "visualizacoes": 4341, "alcance": 2959, "curtidas": 122, "compartilhamentos": 22, "seguimentos": 12, "comentarios": 12, "salvamentos": 22, "engajamento": 178}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Dia de definir a Iluminação do nosso ambiente na @casasertao.pe na @ilumine.ofc ✨  Funcionalidade, conforto visual e atmosfera: tudo pensado", "data": "03/07/2026 08:21", "link": "https://www.instagram.com/reel/DVls4RcjcC9/", "visualizacoes": 4178, "alcance": 2693, "curtidas": 105, "compartilhamentos": 9, "seguimentos": 3, "comentarios": 9, "salvamentos": 0, "engajamento": 123}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Diário de Obra I Casa de Campo - Episódio 3 💙✨", "data": "07/09/2026 14:08", "link": "https://www.instagram.com/reel/Dali0avAaOZ/", "visualizacoes": 4046, "alcance": 2398, "curtidas": 132, "compartilhamentos": 2, "seguimentos": 7, "comentarios": 5, "salvamentos": 3, "engajamento": 142}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Assim como um espaço bem projetado você vê, um café bom você sente logo na primeira dose. ✨☕  Nssa edição teremos dois microlotes exclusivos", "data": "04/21/2026 08:00", "link": "https://www.instagram.com/reel/DXZaKFBF7iA/", "visualizacoes": 2944, "alcance": 2158, "curtidas": 79, "compartilhamentos": 10, "seguimentos": 2, "comentarios": 5, "salvamentos": 0}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Eu sempre me surpreendo com essa transformação 😍", "data": "06/20/2026 12:00", "link": "https://www.instagram.com/reel/DZ0UkN9AHzm/", "visualizacoes": 4129, "alcance": 2077, "curtidas": 107, "compartilhamentos": 4, "seguimentos": 1, "comentarios": 3, "salvamentos": 3, "engajamento": 117}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Vem acompanhar tudo o que está sendo feito na reforma da @camaradesentose 🤍✨", "data": "03/27/2026 09:34", "link": "https://www.instagram.com/reel/DWZQwcZjLxe/", "visualizacoes": 3462, "alcance": 2014, "curtidas": 89, "compartilhamentos": 2, "seguimentos": 1, "comentarios": 15, "salvamentos": 0}], "top_engajamento": [{"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Esse é um projeto que vocês vão ver muito por aqui.   Vou compartilhar com vocês os bastidores, os desafios e as soluções: do projeto até a ", "data": "06/02/2026 05:32", "link": "https://www.instagram.com/reel/DZFWUhsDJPw/", "visualizacoes": 15522, "alcance": 9382, "curtidas": 723, "compartilhamentos": 49, "seguimentos": 186, "comentarios": 50, "salvamentos": 35, "engajamento": 857}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Fomos convidadas pela @morena.grupo para assinar o café da Casa Sertão 2026, uma mostra de arquitetura aqui em Petrolina, dentro da Casa Nav", "data": "04/19/2026 10:35", "link": "https://www.instagram.com/reel/DXUmFcUj3w7/", "visualizacoes": 8358, "alcance": 5392, "curtidas": 305, "compartilhamentos": 50, "seguimentos": 18, "comentarios": 48, "salvamentos": 13, "engajamento": 416}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Como fizemos a instalação da Cuba Farm Sink nesse projeto 🤍✨  Por isso reforçamos a importância de um bom projeto antes mesmo de qualquer in", "data": "09/08/2026 04:30", "link": "https://www.instagram.com/reel/DdBiTBBAgDc/", "visualizacoes": 7247, "alcance": 4795, "curtidas": 189, "compartilhamentos": 61, "seguimentos": 7, "comentarios": 21, "salvamentos": 91, "engajamento": 362}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Vem acompanhar comigo os detalhes de como está ficando a obra da @camaradesentose  ✨🏗️", "data": "09/30/2026 10:15", "link": "https://www.instagram.com/reel/Dd62I_IHT10/", "visualizacoes": 7204, "alcance": 3913, "curtidas": 219, "compartilhamentos": 10, "seguimentos": 28, "comentarios": 12, "salvamentos": 3, "engajamento": 244}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Diário de obra  I Casa de Campo - Episódio 01: Instalação do piso 💙✨", "data": "06/08/2026 06:40", "link": "https://www.instagram.com/reel/DZU67zbjuQ5/", "visualizacoes": 4341, "alcance": 2959, "curtidas": 122, "compartilhamentos": 22, "seguimentos": 12, "comentarios": 12, "salvamentos": 22, "engajamento": 178}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Diário de Obra I Casa de Campo - Episódio 3 💙✨", "data": "07/09/2026 14:08", "link": "https://www.instagram.com/reel/Dali0avAaOZ/", "visualizacoes": 4046, "alcance": 2398, "curtidas": 132, "compartilhamentos": 2, "seguimentos": 7, "comentarios": 5, "salvamentos": 3, "engajamento": 142}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Dia de definir a Iluminação do nosso ambiente na @casasertao.pe na @ilumine.ofc ✨  Funcionalidade, conforto visual e atmosfera: tudo pensado", "data": "03/07/2026 08:21", "link": "https://www.instagram.com/reel/DVls4RcjcC9/", "visualizacoes": 4178, "alcance": 2693, "curtidas": 105, "compartilhamentos": 9, "seguimentos": 3, "comentarios": 9, "salvamentos": 0, "engajamento": 123}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Diário de obras I Casa de Campo - Episódio 06 ✨🤍", "data": "08/27/2026 09:50", "link": "https://www.instagram.com/reel/DcjQP4Ujb3C/", "visualizacoes": 2839, "alcance": 1693, "curtidas": 107, "compartilhamentos": 5, "seguimentos": 1, "comentarios": 8, "salvamentos": 1, "engajamento": 121}, {"conta": "tiararego.arquitetura", "tipo": "Reel do Instagram", "descricao": "Eu sempre me surpreendo com essa transformação 😍", "data": "06/20/2026 12:00", "link": "https://www.instagram.com/reel/DZ0UkN9AHzm/", "visualizacoes": 4129, "alcance": 2077, "curtidas": 107, "compartilhamentos": 4, "seguimentos": 1, "comentarios": 3, "salvamentos": 3, "engajamento": 117}, {"conta": "tiararego.arquitetura", "tipo": "Carrossel do Instagram", "descricao": "Chegamos ao fim da @casasertao.pe 2026 🤍✨  Tão especial quanto ver tudo pronto foi viver o processo.   Hoje, temos a certeza de que todo o c", "data": "07/02/2026 13:56", "link": "https://www.instagram.com/p/DaTf_oZkgfq/", "visualizacoes": 2737, "alcance": 1145, "curtidas": 101, "compartilhamentos": 1, "seguimentos": 0, "comentarios": 10, "salvamentos": 1, "engajamento": 113}], "collab_posts": [{"conta": "ledluxiluminacao", "tipo": "Reel do Instagram", "descricao": "Esse resultado da área gourmet da arquiteta @tiararego.arquitetura 😍😍", "data": "02/12/2026 07:14", "link": "https://www.instagram.com/reel/DUqZeNhkzjQ/", "visualizacoes": 1293, "alcance": 831, "curtidas": 27, "compartilhamentos": 2, "seguimentos": 0, "comentarios": 3, "salvamentos": 5}, {"conta": "assismoveiscuraca", "tipo": "Reel do Instagram", "descricao": "A Expo Revestir é onde as tendências nascem e a gente foi até lá pra trazer tudo isso direto pra você.  Porque atualização não é detalhe, el", "data": "03/20/2026 07:28", "link": "https://www.instagram.com/reel/DWHAv6gjfOd/", "visualizacoes": 3067, "alcance": 2392, "curtidas": 19, "compartilhamentos": 2, "seguimentos": 0, "comentarios": 1, "salvamentos": 3}, {"conta": "morena.grupo", "tipo": "Reel do Instagram", "descricao": "A segunda edição da Casa Sertão está chegando! E não poderíamos deixar de acompanhar como estão os preparativos dessa mostra de arquitetura ", "data": "03/27/2026 11:03", "link": "https://www.instagram.com/reel/DWZZ1OMkXVK/", "visualizacoes": 3838, "alcance": 2609, "curtidas": 65, "compartilhamentos": 4, "seguimentos": 2, "comentarios": 5, "salvamentos": 0}, {"conta": "arquitetura_iasmimduarte", "tipo": "Reel do Instagram", "descricao": "Ontem celebramos o Dia Mundial do Café — uma data que carrega afeto, encontros e memórias. E não poderia haver forma mais especial de viver ", "data": "04/15/2026 04:18", "link": "https://www.instagram.com/reel/DXJnV1IDtjn/", "visualizacoes": 6045, "alcance": 3770, "curtidas": 175, "compartilhamentos": 25, "seguimentos": 4, "comentarios": 37, "salvamentos": 0}, {"conta": "atrios.conexoes", "tipo": "Reel do Instagram", "descricao": "A convite da @morena.grupo, as arquitetas @arquitetura_iasmimduarte e @tiararego.arquitetura assinaram o espaço do café na Casa Sertão, cria", "data": "04/27/2026 08:15", "link": "https://www.instagram.com/reel/DXo8PGzjdV8/", "visualizacoes": 2623, "alcance": 1768, "curtidas": 70, "compartilhamentos": 15, "seguimentos": 3, "comentarios": 2, "salvamentos": 0}, {"conta": "morena.grupo", "tipo": "Reel do Instagram", "descricao": "O espaço encanta o paladar já na entrada da @casasertao.pe, com seus tons terrosos e sua atmosfera acolhedora que nos convida a degustar um ", "data": "04/29/2026 12:29", "link": "https://www.instagram.com/reel/DXugww8ET05/", "visualizacoes": 2682, "alcance": 1852, "curtidas": 75, "compartilhamentos": 13, "seguimentos": 3, "comentarios": 9, "salvamentos": 0}, {"conta": "curaca_oficial", "tipo": "Reel do Instagram", "descricao": "Craça Oficial pelo mundo 🌍✨  E a nossa primeira parada foi no Café da @casasertao.pe , a convite das arquitetas @tiararego.arquitetura e @ar", "data": "04/29/2026 14:17", "link": "https://www.instagram.com/reel/DXuu2DxgbBa/", "visualizacoes": 13875, "alcance": 8130, "curtidas": 352, "compartilhamentos": 36, "seguimentos": 3, "comentarios": 17, "salvamentos": 0}, {"conta": "arquitetura_iasmimduarte", "tipo": "Carrossel do Instagram", "descricao": "Nos detalhes, mora a essência.  Cada escolha carrega intenção, identidade e um olhar cuidadoso sobre a experiência que desejamos proporciona", "data": "05/16/2026 08:32", "link": "https://www.instagram.com/p/DYZ5lyMDd6J/", "visualizacoes": 10809, "alcance": 4408, "curtidas": 243, "compartilhamentos": 19, "seguimentos": 6, "comentarios": 17, "salvamentos": 0}, {"conta": "monicacamargo.studio", "tipo": "Imagem do Instagram", "descricao": "Quando o design de superfície se une à sensibilidade da arquitetura, o resultado é pura poesia visual.  Meus azulejos listrados em tons de t", "data": "06/17/2026 14:58", "link": "https://www.instagram.com/p/DZs_N46lBhU/", "visualizacoes": 1861, "alcance": 993, "curtidas": 27, "compartilhamentos": 5, "seguimentos": 0, "comentarios": 9, "salvamentos": 0}, {"conta": "casasertao.pe", "tipo": "Imagem do Instagram", "descricao": "A Morena Representações, empresa consolidada no mercado de Petrolina, surgiu em 2012 com o objetivo de atender as demandas da construção civ", "data": "01/02/2026 08:01", "link": "https://www.instagram.com/p/DTA6YFBjuLe/", "visualizacoes": 7827, "alcance": 3428, "curtidas": 63, "compartilhamentos": 2, "seguimentos": 2, "comentarios": 2, "salvamentos": 0}], "quarters": [{"label": "1º Trimestre", "range": "Jan–Mar/26", "months": 3, "partial": false, "sums": {"visualizacoes": 175536, "interacoes": 3353, "visitas": 1753, "seguidores": 227, "alcance": 24500}, "avg": {"visualizacoes": 58512.0, "interacoes": 1117.7, "visitas": 584.3, "seguidores": 75.7}}, {"label": "2º Trimestre", "range": "Abr–Jun/26", "months": 3, "partial": false, "sums": {"visualizacoes": 263425, "interacoes": 6121, "visitas": 2528, "seguidores": 514, "alcance": 36100}, "avg": {"visualizacoes": 87808.3, "interacoes": 2040.3, "visitas": 842.7, "seguidores": 171.3}, "pct_vs_prev": {"visualizacoes": 50.1, "interacoes": 82.5, "visitas": 44.2, "seguidores": 126.3, "alcance": 47.3}}, {"label": "3º Trimestre", "range": "Jul–Set/26", "months": 3, "partial": false, "sums": {"visualizacoes": 228776, "interacoes": 5431, "visitas": 2178, "seguidores": 318, "alcance": 31900}, "avg": {"visualizacoes": 76258.7, "interacoes": 1810.3, "visitas": 726.0, "seguidores": 106.0}, "pct_vs_prev": {"visualizacoes": -13.2, "interacoes": -11.3, "visitas": -13.8, "seguidores": -38.1, "alcance": -11.6}}], "alcance_media_mensal": 12855};</script>
+<script>
+/* ===================== Helpers ===================== */
+function fmtNum(n){ return Math.round(n).toLocaleString('pt-BR'); }
+function fmtCompact(n){
+  if(n>=1000000) return (n/1000000).toFixed(1).replace('.',',')+'M';
+  if(n>=1000) return (n/1000).toFixed(1).replace('.',',')+'K';
+  return String(Math.round(n));
+}
+function fmtDateBR(str){
+  const parts = str.split(' ');
+  const d = parts[0].split('/');
+  return d[1]+'/'+d[0]+'/'+d[2].slice(2);
+}
+function fmtBadge(tipo){
+  if(tipo.indexOf('Reel')>-1) return {cls:'format-reel', label:'Reel'};
+  if(tipo.indexOf('Carrossel')>-1) return {cls:'format-carrossel', label:'Carrossel'};
+  return {cls:'format-imagem', label:'Imagem'};
+}
+const fmtMil = (n)=> (n/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
+const MONTH_ABBR_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+function monthLabelPt(m){
+  const parts = m.split('-');
+  return MONTH_ABBR_PT[parseInt(parts[1],10)-1]+'/'+parts[0].slice(2);
+}
+const ICONS = {
+  eye:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  compass:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-2 6-6 2 2-6z"/></svg>',
+  heart:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0112 5a5.5 5.5 0 019.5 6c-2.5 4.6-9.5 9-9.5 9z"/></svg>',
+  door:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3H6v18h9"/><path d="M15 3l4 2v14l-4 2"/><circle cx="12" cy="12" r="1"/></svg>',
+  userPlus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="4"/><path d="M2 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/><path d="M19 8v6M22 11h-6"/></svg>',
+  users:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M17 4a3 3 0 010 6"/><path d="M22 20c0-3-2-5.2-5-5.8"/></svg>',
+  grid:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  link:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 15l6-6"/><path d="M8 12L5.5 14.5a3.5 3.5 0 004.9 4.9L13 17"/><path d="M16 12l2.5-2.5a3.5 3.5 0 00-4.9-4.9L11 7"/></svg>',
+  percent:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>'
+};
+
+/* ===================== Chart.js defaults ===================== */
+Chart.defaults.color = '#A3A3A3';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+Chart.defaults.plugins.legend.labels.padding = 14;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1E1E1E';
+Chart.defaults.plugins.tooltip.borderColor = '#2A2A2A';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.titleFont = {family:"'Space Grotesk', sans-serif", weight:'600'};
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+
+const PRIMARY = '#FF0054';
+const GRID_COLOR = 'rgba(255,255,255,0.05)';
+
+/* Custom plugin: dashed milestone vertical line (unused in this report — no milestone date) */
+const milestonePlugin = {
+  id: 'milestoneLine',
+  afterDraw(chart, args, opts){
+    if(!opts || opts.index === undefined || opts.index === null) return;
+    const {ctx, chartArea, scales} = chart;
+    if(!scales.x) return;
+    const xPos = scales.x.getPixelForValue(opts.index);
+    if(xPos < chartArea.left || xPos > chartArea.right) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([5,4]);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = opts.color || 'rgba(245,245,245,0.35)';
+    ctx.moveTo(xPos, chartArea.top);
+    ctx.lineTo(xPos, chartArea.bottom);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+Chart.register(milestonePlugin);
+
+const baseGrid = { color: GRID_COLOR, drawTicks:false };
+const baseTicks = { color:'#6E6E6E', font:{size:10} };
+
+/* ===================== Seguidores (computado antes p/ usar no KPI) ===================== */
+const segAbsEnd = DATA.seguidores_abs.cum[DATA.seguidores_abs.cum.length-1];
+const segGrowthAbs = segAbsEnd - DATA.seguidores_abs.start;
+const segGrowthPct = (segGrowthAbs/DATA.seguidores_abs.start*100);
+const segStartLabel = monthLabelPt(DATA.seguidores_abs.months[0]);
+
+/* ===================== KPIs ===================== */
+const totalContentCount = Object.values(DATA.format_counts).reduce((a,b)=>a+b,0);
+
+const kpis = [
+  {icon:'compass', label:'Alcance total', value:DATA.alcance_periodo, text:fmtMil(DATA.alcance_periodo), pct:null, sub:'contas únicas alcançadas no período'},
+  {icon:'eye', label:'Visualizações totais', value:DATA.totals.visualizacoes, pct:null, sub:'views em reels, posts e carrosséis'},
+  {icon:'heart', label:'Interações totais', value:DATA.totals.interacoes, pct:null, sub:'curtidas + comentários + salvamentos + compart.'},
+  {icon:'door', label:'Visitas ao perfil', value:DATA.totals.visitas, pct:null, sub:'acessos ao perfil da conta'},
+  {icon:'userPlus', label:'Novos seguidores (bruto)', value:DATA.seguidores_gross_total, pct:null, sub:'ganho bruto de seguidores no período'},
+  {icon:'users', label:'Seguidores totais (atual)', value:segAbsEnd, pct:null, badge:'+'+fmtNum(segGrowthAbs)+' desde '+segStartLabel.toLowerCase(), sub:'total de seguidores da conta hoje'},
+  {icon:'percent', label:'Taxa de engajamento média', value:DATA.engagement_rate_overall, pct:null, format:'percent', sub:'interações sobre o total de visualizações'},
+  {icon:'grid', label:'Conteúdos publicados', value:totalContentCount, pct:null, sub: [['Reel do Instagram','reels'],['Carrossel do Instagram','carrosséis'],['Imagem do Instagram','imagens']].filter(x=>DATA.format_counts[x[0]]).map(x=>DATA.format_counts[x[0]]+' '+x[1]).join(' · ')},
+];
+
+document.getElementById('kpi-row').innerHTML = kpis.map(k=>{
+  let changeHtml = '';
+  if(k.pct !== null && k.pct !== undefined){
+    const up = k.pct >= 0;
+    changeHtml = `<div class="kpi-change ${up?'up':'down'}">${up?'↑':'↓'} ${Math.abs(k.pct).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</div>`;
+  } else if(k.badge){
+    changeHtml = `<div class="kpi-change up">↑ ${k.badge}</div>`;
+  }
+  const valueHtml = k.text ? k.text : k.format==='percent'
+    ? k.value.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2})+'%'
+    : `<span class="counter" data-target="${k.value}">0</span>`;
+  return `<div class="kpi">
+    <div class="kpi-icon">${ICONS[k.icon]}</div>
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${valueHtml}</div>
+    ${changeHtml}
+    <div class="kpi-sub">${k.sub}</div>
+  </div>`;
+}).join('');
+
+/* ===================== Cumulativos (visão geral, à direita das KPIs) ===================== */
+function cumulativeChart(canvasId, dataArr, color, totalElId){
+  document.getElementById(totalElId).textContent = fmtCompact(dataArr[dataArr.length-1]);
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,60);
+  grad.addColorStop(0, color+'50');
+  grad.addColorStop(1, color+'02');
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: DATA.months_labels,
+      datasets:[{
+        data:dataArr, borderColor:color, backgroundColor:grad,
+        fill:true, tension:0.3, pointRadius:0, pointHoverRadius:4,
+        pointHoverBackgroundColor:color, pointHoverBorderColor:'#fff', borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false, mode:'index'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:(c)=>fmtNum(c.parsed.y)}}
+      },
+      scales:{
+        x:{display:false},
+        y:{display:false}
+      }
+    }
+  });
+}
+cumulativeChart('chart-cum-visualizacoes', DATA.cumulative.visualizacoes, '#8B5CF6', 'cum-total-visualizacoes');
+cumulativeChart('chart-cum-interacoes', DATA.cumulative.interacoes, '#06B6D4', 'cum-total-interacoes');
+cumulativeChart('chart-cum-visitas', DATA.cumulative.visitas, '#22C55E', 'cum-total-visitas');
+
+/* ===================== Evolução mensal ===================== */
+function lineChart(canvasId, label, dataArr, color, totalElId){
+  if(totalElId){
+    document.getElementById(totalElId).textContent = fmtCompact(dataArr.reduce((a,b)=>a+b,0));
+  }
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,180);
+  grad.addColorStop(0, color+'55');
+  grad.addColorStop(1, color+'02');
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: DATA.months_labels,
+      datasets:[{
+        label, data:dataArr, borderColor:color, backgroundColor:grad,
+        fill:true, tension:0.35, pointRadius:0, pointHoverRadius:5,
+        pointHoverBackgroundColor:color, pointHoverBorderColor:'#fff', borderWidth:2.5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false, mode:'index'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:(c)=>label+': '+fmtNum(c.parsed.y)}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{...baseTicks, maxRotation:0, autoSkip:true, maxTicksLimit:8}},
+        y:{grid:baseGrid, ticks:{...baseTicks, callback:(v)=>fmtCompact(v)}, beginAtZero:true}
+      }
+    }
+  });
+}
+lineChart('chart-alcance','Alcance', DATA.series.alcance, PRIMARY, null);
+document.getElementById('total-alcance').textContent = 'média '+fmtCompact(DATA.alcance_media_mensal)+'/mês';
+lineChart('chart-visualizacoes','Visualizações', DATA.series.visualizacoes, '#8B5CF6', 'total-visualizacoes');
+lineChart('chart-interacoes','Interações', DATA.series.interacoes, '#06B6D4', 'total-interacoes');
+lineChart('chart-visitas','Visitas', DATA.series.visitas, '#22C55E', 'total-visitas');
+
+/* ===================== Frequência (visualizações ÷ alcance) ===================== */
+const fmtFreq = (v, d)=> v.toLocaleString('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d});
+const freqMonthly = DATA.series.visualizacoes.map((v,i)=> DATA.series.alcance[i] ? v/DATA.series.alcance[i] : 0);
+const freqOverall = DATA.totals.visualizacoes / DATA.alcance_periodo;
+document.getElementById('total-frequencia').textContent = 'período '+fmtFreq(freqOverall,1)+'x';
+(function(){
+  const color = '#F97316';
+  const ctx = document.getElementById('chart-frequencia').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,180);
+  grad.addColorStop(0, color+'55'); grad.addColorStop(1, color+'02');
+  new Chart(ctx, {
+    type:'line',
+    data:{ labels: DATA.months_labels, datasets:[{
+      label:'Frequência', data:freqMonthly, borderColor:color, backgroundColor:grad,
+      fill:true, tension:0.35, pointRadius:3, pointHoverRadius:6,
+      pointBackgroundColor:color, pointHoverBorderColor:'#fff', borderWidth:2.5 }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false, mode:'index'},
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>'Frequência: '+fmtFreq(c.parsed.y,2)+'x'}} },
+      scales:{
+        x:{grid:{display:false}, ticks:{...baseTicks, maxRotation:0, autoSkip:true, maxTicksLimit:9}},
+        y:{grid:baseGrid, ticks:{...baseTicks, callback:(v)=>fmtFreq(v,0)+'x'}, beginAtZero:true}
+      }
+    }
+  });
+})();
+
+
+/* ===================== Divisão trimestral ===================== */
+const QTR_METRIC_LABELS = {
+  alcance:'Alcance', visualizacoes:'Visualizações', interacoes:'Interações',
+  visitas:'Visitas', seguidores:'Novos seguidores'
+};
+document.getElementById('quarter-grid').innerHTML = DATA.quarters.map((q,i)=>{
+  const metricsHtml = Object.keys(QTR_METRIC_LABELS).map(m=>{
+    let changeHtml = '';
+    if(q.pct_vs_prev && q.pct_vs_prev[m] !== null && q.pct_vs_prev[m] !== undefined){
+      const up = q.pct_vs_prev[m] >= 0;
+      changeHtml = ` <small style="color:${up?'var(--green)':'var(--red)'}; font-weight:700;">${up?'↑':'↓'}${Math.abs(q.pct_vs_prev[m]).toLocaleString('pt-BR',{maximumFractionDigits:0})}%</small>`;
+    }
+    return `<div class="fmt-metric"><span>${QTR_METRIC_LABELS[m]}</span><b>${m==='alcance'?fmtMil(q.sums[m]):fmtNum(q.sums[m])}${changeHtml}</b></div>`;
+  }).join('');
+  return `<div class="format-card">
+    <div class="fmt-head">
+      <div class="format-badge reel" style="font-size:0.8em; font-weight:700;">Q${i+1}</div>
+      <div><h4>${q.label}</h4><div class="fmt-count">${q.range}${q.partial?' · parcial ('+q.months+' meses)':''}</div></div>
+    </div>
+    ${metricsHtml}
+  </div>`;
+}).join('');
+
+function quarterBarChart(canvasId, metricKey, color, tooltipSuffix){
+  new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{
+      labels: DATA.quarters.map((q,i)=>'Q'+(i+1)+' · '+q.range+(q.partial?' (parcial)':'')),
+      datasets:[{ data:DATA.quarters.map(q=>q.sums[metricKey]), backgroundColor:color, borderRadius:6, maxBarThickness:70 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtNum(c.parsed.y)+' '+tooltipSuffix}}},
+      scales:{ x:{grid:{display:false}, ticks:baseTicks}, y:{grid:baseGrid, ticks:{...baseTicks, callback:(v)=>fmtCompact(v)}, beginAtZero:true} }
+    }
+  });
+}
+quarterBarChart('chart-quarter-alcance', 'alcance', PRIMARY, 'contas únicas');
+quarterBarChart('chart-quarter-visualizacoes', 'visualizacoes', '#8B5CF6', 'visualizações');
+quarterBarChart('chart-quarter-interacoes', 'interacoes', '#06B6D4', 'interações');
+quarterBarChart('chart-quarter-visitas', 'visitas', '#22C55E', 'visitas');
+new Chart(document.getElementById('chart-quarter-frequencia'), {
+  type:'bar',
+  data:{
+    labels: DATA.quarters.map((q,i)=>'Q'+(i+1)+' · '+q.range+(q.partial?' (parcial)':'')),
+    datasets:[{ data:DATA.quarters.map(q=>q.sums.visualizacoes/q.sums.alcance), backgroundColor:'#F97316', borderRadius:6, maxBarThickness:70 }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>'Frequência: '+fmtFreq(c.parsed.y,2)+'x'}}},
+    scales:{ x:{grid:{display:false}, ticks:baseTicks}, y:{grid:baseGrid, ticks:{...baseTicks, callback:(v)=>fmtFreq(v,0)+'x'}, beginAtZero:true} }
+  }
+});
+/* ===================== Seguidores (render) ===================== */
+document.getElementById('followers-big').innerHTML = `
+  <div class="label">Seguidores totais hoje</div>
+  <div class="value">${fmtNum(segAbsEnd)}</div>
+  <div class="growth">↑ +${fmtNum(segGrowthAbs)} · +${segGrowthPct.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</div>
+  <div class="note">Crescimento medido entre ${segStartLabel} e ${monthLabelPt(DATA.seguidores_abs.months[DATA.seguidores_abs.months.length-1])}, com base no total de seguidores informado pela ferramenta de analytics.</div>
+`;
+document.getElementById('seguidores-abs-total').textContent = fmtNum(segAbsEnd);
+
+new Chart(document.getElementById('chart-seguidores-abs'), {
+  type:'line',
+  data:{
+    labels: DATA.seguidores_abs.months.map(monthLabelPt),
+    datasets:[{
+      label:'Seguidores totais', data: DATA.seguidores_abs.cum,
+      borderColor: PRIMARY, backgroundColor:'rgba(255,0,84,0.12)',
+      fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5,
+      pointHoverBackgroundColor:PRIMARY, pointHoverBorderColor:'#fff', borderWidth:3
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{intersect:false, mode:'index'},
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>'Seguidores: '+fmtNum(c.parsed.y)}}},
+    scales:{
+      x:{grid:{display:false}, ticks:baseTicks},
+      y:{grid:baseGrid, ticks:{...baseTicks, callback:(v)=>fmtCompact(v)}}
+    }
+  }
+});
+
+document.getElementById('seguidores-gross-total').textContent = fmtCompact(DATA.seguidores_gross_total);
+new Chart(document.getElementById('chart-seguidores-gross'), {
+  type:'bar',
+  data:{
+    labels: DATA.months_labels,
+    datasets:[{ label:'Novos seguidores', data:DATA.series.seguidores, backgroundColor:'rgba(255,0,84,0.55)', borderRadius:5, maxBarThickness:34 }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>'Novos seguidores: '+fmtNum(c.parsed.y)}}},
+    scales:{
+      x:{grid:{display:false}, ticks:{...baseTicks, maxRotation:0}},
+      y:{grid:baseGrid, ticks:baseTicks, beginAtZero:true}
+    }
+  }
+});
+
+/* ===================== Mix de conteúdo ===================== */
+const fmtOrder = ['Reel do Instagram','Carrossel do Instagram','Imagem do Instagram'];
+const fmtColors = {'Reel do Instagram':PRIMARY, 'Carrossel do Instagram':'#8B5CF6', 'Imagem do Instagram':'#06B6D4'};
+const fmtLabels = {'Reel do Instagram':'Reels', 'Carrossel do Instagram':'Carrosséis', 'Imagem do Instagram':'Imagens'};
+
+new Chart(document.getElementById('chart-format-count'), {
+  type:'doughnut',
+  data:{
+    labels: fmtOrder.map(f=>fmtLabels[f]),
+    datasets:[{ data:fmtOrder.map(f=>DATA.format_counts[f]||0), backgroundColor:fmtOrder.map(f=>fmtColors[f]), borderColor:'#161616', borderWidth:3, hoverOffset:8 }]
+  },
+  options:{responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{legend:{position:'bottom'}}}
+});
+
+new Chart(document.getElementById('chart-format-views'), {
+  type:'bar',
+  data:{
+    labels: fmtOrder.map(f=>fmtLabels[f]),
+    datasets:[{ data:fmtOrder.map(f=>(DATA.format_stats[f]?DATA.format_stats[f].views_avg:0)), backgroundColor:fmtOrder.map(f=>fmtColors[f]), borderRadius:6, maxBarThickness:60 }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>'Média: '+fmtNum(c.parsed.x)+' views'}}},
+    scales:{ x:{grid:baseGrid, ticks:{...baseTicks, callback:(v)=>fmtCompact(v)}}, y:{grid:{display:false}, ticks:baseTicks} }
+  }
+});
+
+document.getElementById('format-grid').innerHTML = fmtOrder.filter(f=>DATA.format_stats[f]).map(f=>{
+  const s = DATA.format_stats[f];
+  const isWinner = f === 'Reel do Instagram';
+  const badgeCls = f==='Reel do Instagram'?'reel':(f==='Carrossel do Instagram'?'carrossel':'imagem');
+  const icon = f==='Reel do Instagram'?'▶':(f==='Carrossel do Instagram'?'◫':'▧');
+  return `<div class="format-card ${isWinner?'winner':''}">
+    <div class="fmt-head">
+      <div class="format-badge ${badgeCls}">${icon}</div>
+      <div><h4>${fmtLabels[f]} ${isWinner?'<span class="winner-tag">Melhor conversão</span>':''}</h4><div class="fmt-count">${s.count} post${s.count===1?'':'s'} publicado${s.count===1?'':'s'}</div></div>
+    </div>
+    <div class="fmt-metric"><span>Média de views</span><b>${fmtNum(s.views_avg)}</b></div>
+    <div class="fmt-metric"><span>Taxa de engajamento</span><b>${s.engagement_rate.toLocaleString('pt-BR')}%</b></div>
+    <div class="fmt-metric"><span>Razão salvamento/curtida</span><b>${s.save_like_ratio.toLocaleString('pt-BR')}%</b></div>
+    <div class="fmt-metric"><span>Novos seguidores / post</span><b>${s.follows_avg.toLocaleString('pt-BR')}</b></div>
+  </div>`;
+}).join('');
+
+/* ===================== Top conteúdos: Alcance / Engajamento ===================== */
+function postRowRanked(p, idx, primaryValue, secondaryValue){
+  const badge = fmtBadge(p.tipo);
+  const rankCls = idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':'rank-n';
+  return `<tr onclick="window.open('${p.link}','_blank')">
+    <td><span class="rank-num ${rankCls}">${idx+1}</span></td>
+    <td><span class="post-title" title="${p.descricao.replace(/"/g,'&quot;')}">${p.descricao}</span></td>
+    <td><span class="post-format-badge ${badge.cls}">${badge.label}</span></td>
+    <td>${fmtDateBR(p.data)}</td>
+    <td><b>${fmtNum(primaryValue)}</b></td>
+    <td>${fmtNum(secondaryValue)}</td>
+    <td><a class="post-link" href="${p.link}" target="_blank" onclick="event.stopPropagation()">abrir ↗</a></td>
+  </tr>`;
+}
+document.getElementById('top-alcance-body').innerHTML = DATA.top_alcance.map((p,i)=>postRowRanked(p,i,p.alcance,p.visualizacoes)).join('');
+document.getElementById('top-engajamento-body').innerHTML = DATA.top_engajamento.map((p,i)=>postRowRanked(p,i,p.engajamento,p.alcance)).join('');
+
+/* ===================== Collabs ===================== */
+document.getElementById('collab-grid').innerHTML = DATA.collab_posts.map(p=>{
+  const badge = fmtBadge(p.tipo);
+  return `<div class="collab-card" onclick="window.open('${p.link}','_blank')">
+    <div class="collab-handle">@${p.conta}</div>
+    <div class="collab-date">${fmtDateBR(p.data)} · <span class="post-format-badge ${badge.cls}" style="margin-left:2px;">${badge.label}</span></div>
+    <div class="collab-desc">${p.descricao}${p.descricao.length>=140?'…':''}</div>
+    <div class="collab-stats">
+      <div class="collab-stat"><b>${fmtNum(p.visualizacoes)}</b><span>views</span></div>
+      <div class="collab-stat"><b>${fmtNum(p.alcance)}</b><span>alcance</span></div>
+      <div class="collab-stat"><b>${fmtNum(p.curtidas)}</b><span>curtidas</span></div>
+      <div class="collab-stat"><b>${fmtNum(p.seguimentos)}</b><span>novos seguidores</span></div>
+    </div>
+  </div>`;
+}).join('');
+
+/* ===================== Tabs ===================== */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    const group = tab.closest('[data-group]');
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const targetId = tab.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(tc=>{ tc.style.display='none'; tc.classList.remove('active'); });
+    const target = document.getElementById(targetId);
+    target.style.display='block'; target.classList.add('active');
+  });
+});
+
+/* ===================== Counter animation ===================== */
+function animateCounter(el){
+  const target = parseFloat(el.dataset.target);
+  const duration = 1600;
+  const start = performance.now();
+  function update(now){
+    const p = Math.min((now-start)/duration, 1);
+    const eased = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.floor(eased*target).toLocaleString('pt-BR');
+    if(p<1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+/* ===================== Scroll reveal ===================== */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      e.target.querySelectorAll('.counter').forEach(c=>{ if(!c.dataset.done){ animateCounter(c); c.dataset.done='1'; } });
+      obs.unobserve(e.target);
+    }
+  });
+}, {threshold:0.1});
+document.querySelectorAll('.section').forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
